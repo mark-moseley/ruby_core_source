@@ -1,1 +1,3 @@
-TODO
+Retrieve ruby core source files.
+
+This is initially to ease running the Ruby 1.9 ruby-debug installation.
