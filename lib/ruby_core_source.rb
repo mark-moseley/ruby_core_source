@@ -10,7 +10,15 @@ require 'fileutils'
 
 module Ruby_core_source
 
-def get_ruby_core_source
+def create_makefile_with_core(hdrs, name)
+
+  #
+  # First, see if the gem already has the needed headers
+  #
+  if hdrs.call
+    create_makefile(name)
+    return true
+  end
 
   ruby_dir = ""
   if RUBY_PATCHLEVEL < 0
@@ -19,15 +27,27 @@ def get_ruby_core_source
       uri.download(temp)
       revision_map = YAML::load(File.open(temp.path))
       ruby_dir = revision_map[RUBY_REVISION]
-      return nil if ruby_dir.nil?
+      return false if ruby_dir.nil?
     }
   else
     ruby_dir = "ruby-" + RUBY_VERSION.to_s + "-p" + RUBY_PATCHLEVEL.to_s
   end
 
+  #
+  # Check if core headers were already downloaded; if so, use them
+  #
   dest_dir = Config::CONFIG["rubyhdrdir"] + "/" + ruby_dir
-  uri_path = "http://ftp.ruby-lang.org/pub/ruby/1.9/" + ruby_dir + ".tar.gz"
+  with_cppflags("-I" + dest_dir) {
+    if hdrs.call
+      create_makefile(name)
+      return true
+    end
+  }
 
+  #
+  # Download the headers
+  #
+  uri_path = "http://ftp.ruby-lang.org/pub/ruby/1.9/" + ruby_dir + ".tar.gz"
   Tempfile.open("ruby-src") { |temp|
 
     temp.binmode
@@ -45,8 +65,14 @@ def get_ruby_core_source
     }
   }
 
-  dest_dir
+  with_cppflags("-I" + dest_dir) {
+    if hdrs.call
+      create_makefile(name)
+      return true
+    end
+  }
+  return false
 end
-module_function :get_ruby_core_source
+module_function :create_makefile_with_core
 
 end
