@@ -1,10 +1,13 @@
 Retrieve ruby core source files.
 
-This is initially to ease running the Ruby 1.9 ruby-debug installation.
+This can be used by any C extension gem that needs Ruby core headers (*.h and *.inc)
 
 Usage:
 
-  header_dir = Ruby_core_source::create_makefile_with_core(hdr_check_proc, gem_name)
+  Ruby_core_source::create_makefile_with_core(hdr_check_proc, gem_name)
+takes the place of
+  create_makefile(gem_name)
+in your extconf.rb
 
 This will:
   If hdr_check_proc is true, call create_makefile(gem_name)
