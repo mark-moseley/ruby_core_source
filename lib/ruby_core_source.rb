@@ -20,6 +20,19 @@ def create_makefile_with_core(hdrs, name)
     return true
   end
 
+  #
+  # Check if ruby was build from rvm managed sources
+  #
+  # (Do this before preview-revision checking below, since that returns false)
+  #
+  dest_dir = Config::CONFIG['prefix'].gsub('/rubies/','/src/')
+  with_cppflags("-I" + dest_dir) {
+    if hdrs.call
+      create_makefile(name)
+      return true
+    end
+  }
+
   ruby_dir = ""
   if RUBY_PATCHLEVEL < 0
     Tempfile.open("preview-revision") { |temp|
