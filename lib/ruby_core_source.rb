@@ -45,6 +45,17 @@ def create_makefile_with_core(hdrs, name)
   }
 
   #
+  # Figure out if we can actually write to the rubyhdrdir
+  # If not, set dest_dir to be local to our extracted source
+  #
+  begin
+    FileUtils.mkdir_p(dest_dir)
+  rescue Errno::EACCES
+    dest_dir = File.join(Dir.getwd, ruby_dir)
+    FileUtils.mkdir_p(dest_dir)
+  end
+
+  #
   # Download the headers
   #
   uri_path = "http://ftp.ruby-lang.org/pub/ruby/1.9/" + ruby_dir + ".tar.gz"
@@ -56,7 +67,6 @@ def create_makefile_with_core(hdrs, name)
 
     tgz = Zlib::GzipReader.new(File.open(temp, "rb"))
 
-    FileUtils.mkdir_p(dest_dir)
     Dir.mktmpdir { |dir|
       inc_dir = dir + "/" + ruby_dir + "/*.inc"
       hdr_dir = dir + "/" + ruby_dir + "/*.h"
