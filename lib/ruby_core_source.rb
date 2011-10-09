@@ -1,4 +1,3 @@
-
 require 'rbconfig'
 require 'tempfile'
 require 'tmpdir'
@@ -36,7 +35,7 @@ def create_makefile_with_core(hdrs, name)
   #
   # Check if core headers were already downloaded; if so, use them
   #
-  dest_dir = Config::CONFIG["rubyhdrdir"] + "/" + ruby_dir
+  dest_dir = RbConfig::CONFIG["rubyhdrdir"] + "/" + ruby_dir
   with_cppflags("-I" + dest_dir) {
     if hdrs.call
       create_makefile(name)
