@@ -31,6 +31,7 @@ def create_makefile_with_core(hdrs, name)
   else
     ruby_dir = "ruby-" + RUBY_VERSION.to_s + "-p" + RUBY_PATCHLEVEL.to_s
   end
+  major_version = RUBY_VERSION.to_s[/^\d+\.\d+/]
 
   #
   # Check if core headers were already downloaded; if so, use them
@@ -54,10 +55,11 @@ def create_makefile_with_core(hdrs, name)
     FileUtils.mkdir_p(dest_dir)
   end
 
+
   #
   # Download the headers
   #
-  uri_path = "http://ftp.ruby-lang.org/pub/ruby/1.9/" + ruby_dir + ".tar.gz"
+  uri_path = "http://ftp.ruby-lang.org/pub/ruby/#{major_version}/#{ruby_dir}.tar.gz"
   Tempfile.open("ruby-src") { |temp|
 
     temp.binmode
