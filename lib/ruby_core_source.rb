@@ -57,15 +57,30 @@ def create_makefile_with_core(hdrs, name)
   #
   # Download the headers
   #
-  uri_path = "http://ftp.ruby-lang.org/pub/ruby/1.9/" + ruby_dir + ".tar.gz"
+  version2 = (ruby_dir.match(/ruby-(\d+\.\d+).\d/) || [nil, "1.9"])[1]
+  uri_path = "http://ftp.ruby-lang.org/pub/ruby/#{version2}/" + ruby_dir + ".tar.gz"
   Tempfile.open("ruby-src") { |temp|
 
     temp.binmode
     uri = URI.parse(uri_path)
     uri.download(temp)
 
-    tgz = Zlib::GzipReader.new(File.open(temp, "rb"))
+    begin
+      tgz = Zlib::GzipReader.new(File.open(temp.path, "rb"))
+    rescue
+      if $!.to_s["not in gzip format"]
+        tgz = temp.path
+      else
+        # uncomment to debug the zlib reader
+        #$stderr.puts "Error reading #{temp.path} with Zlib::GzipReader"
+        #$stderr.puts "file #{temp.path}:" + `file #{temp.path}`
+        #$stderr.puts "Press return to continue (file will be deleted)"
+        #$stdin.readline
+        raise
+      end
+    end
 
+    FileUtils.mkdir_p(dest_dir)
     Dir.mktmpdir { |dir|
       inc_dir = dir + "/" + ruby_dir + "/*.inc"
       hdr_dir = dir + "/" + ruby_dir + "/*.h"
