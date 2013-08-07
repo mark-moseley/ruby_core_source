@@ -278,6 +278,9 @@ module URI
     def connect
       if proxy = proxy_uri
         proxy = URI.parse(proxy) if String === proxy
+        if URI::Generic === proxy
+          proxy = URI("#{scheme}://#{proxy.to_s}")
+        end
         http = Net::HTTP.new(host, port, proxy.host, proxy.port, proxy.user, proxy.password)
       else
         http = Net::HTTP.new(host, port)
